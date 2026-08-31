@@ -1,0 +1,17 @@
+{
+  "name": "Rekenkitty",
+  "short_name": "Rekenkitty",
+  "description": "Rekenen oefenen bij de lesdoelen van groep 4, blok 1.",
+  "lang": "nl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#fff4f9",
+  "theme_color": "#ff4d87",
+  "icons": [
+    { "src": "iconen/icoon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "iconen/icoon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "iconen/icoon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

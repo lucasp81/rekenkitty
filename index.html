@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Rekenkitty</title>
+<meta name="description" content="Rekenen oefenen bij de lesdoelen van groep 4, blok 1.">
+<meta name="theme-color" content="#ff4d87">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Rekenkitty">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="iconen/icoon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="iconen/icoon-180.png">
+<link rel="stylesheet" href="css/stijl.css">
+</head>
+<body>
+
+<div id="app">
+  <header id="kop">
+    <button class="rondknop" id="huisknop" title="Terug naar het begin" style="visibility:hidden">&#127968;</button>
+    <span class="kopmascotte" id="kopmascotte"></span>
+    <span class="kopnaam">Rekenkitty</span>
+    <div class="kopmidden">
+      <div class="regel"><span id="rang">Rekenpoesje</span><span id="niveaulabel">niveau 1</span></div>
+      <div class="balk"><i id="puntenbalk" style="width:0%"></i></div>
+    </div>
+    <div class="chip" id="puntenchip">&#11088; 0</div>
+    <div class="chip" id="dagchip" style="display:none">&#128293; 0</div>
+    <button class="rondknop" id="geluidknop" title="Geluid aan of uit">&#128266;</button>
+  </header>
+
+  <main id="scherm"></main>
+  <div id="onderbalk"></div>
+</div>
+
+<div id="toast"></div>
+
+<script src="js/kern.js"></script>
+<script src="js/voortgang.js"></script>
+<script src="js/spellen.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
