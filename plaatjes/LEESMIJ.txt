@@ -1,0 +1,24 @@
+EIGEN PLAATJES VOOR REKENKITTY
+==============================
+
+Dit mapje is leeg en dat mag zo blijven: dan tekent kitty-rekenen.html zelf
+een poesje. Wil je liever je eigen plaatjes? Zet ze hier neer met precies
+deze namen:
+
+    kitty.png       -> het poesje links bovenin, naast de titel
+    beloning1.png   -> wordt na een ronde getoond
+    beloning2.png
+    beloning3.png
+
+Tips
+----
+* PNG of JPG mag allebei, maar de naam moet op .png eindigen.
+* Vierkant werkt het mooist. Ongeveer 300 x 300 pixels is ruim genoeg;
+  kitty.png wordt klein weergegeven (58 pixels).
+* Een plaatje dat ontbreekt of niet laadt, wordt gewoon overgeslagen.
+  Je ziet dan het getekende poesje - er gaat niets stuk.
+* Na het neerzetten van de plaatjes de pagina even verversen (F5).
+
+Let op: plaatjes van bestaande figuren (zoals Hello Kitty) zijn auteursrechtelijk
+beschermd. Voor thuisgebruik op de eigen tablet zoek je ze zelf op; verspreid het
+bestand met die plaatjes erin niet verder.

@@ -1,0 +1,259 @@
+/* =========================================================================
+   Rekenkitty - opmaak
+
+   Uitgangspunt: alles past op één liggend tabletscherm. Het scherm scrolt
+   nooit; de maten schalen mee met de hoogte van het venster (vh), en als een
+   vraag toch te hoog is verkleint app.js hem automatisch.
+   ========================================================================= */
+
+:root{
+  --ink:#43263a; --zacht:#8d6579;
+  --roze:#ff4d87; --roze-diep:#d1275f; --roze-licht:#ffe6f0; --roze-rand:#ffc4da;
+  --kaart:#ffffff; --goed:#12a05a; --fout:#e0324f;
+  --schaduw:0 3px 0 rgba(198,42,92,.12), 0 10px 22px rgba(198,42,92,.12);
+
+  --toets:clamp(40px, 6.4vh, 58px);      /* hoogte van een cijfertoets */
+  --vak-h:clamp(46px, 8.4vh, 70px);      /* hoogte van een invulvakje */
+  --vak-b:clamp(62px, 11vh, 96px);       /* breedte van een invulvakje */
+  --opdracht:clamp(16px, 2.7vh, 23px);
+  --groot:clamp(24px, 5.2vh, 42px);      /* cijfers in een som */
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;overscroll-behavior:none}
+body{
+  font-family:"Trebuchet MS","Segoe UI",Verdana,sans-serif;
+  color:var(--ink);
+  font-size:clamp(14px,2.1vh,19px);
+  background-color:#fff4f9;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='190' height='190' viewBox='0 0 190 190'%3E%3Cpath d='M32 22c-6-8-20-3-20 6 0 9 14 16 20 23 6-7 20-14 20-23 0-9-14-14-20-6z' fill='%23ffe8f2'/%3E%3Cpath d='M108 96c-4-5-13-2-13 4 0 6 9 11 13 15 4-4 13-9 13-15 0-6-9-9-13-4z' fill='%23fff0f6'/%3E%3C/svg%3E");
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  -webkit-user-select:none; user-select:none; -webkit-touch-callout:none;
+}
+
+#app{
+  height:100vh; height:100dvh;
+  display:flex; flex-direction:column; gap:6px;
+  padding:6px clamp(8px,1.6vw,20px) 8px;
+  max-width:1400px; margin:0 auto;
+}
+
+/* ---------------------------------------------------------------- kop ---- */
+#kop{flex:0 0 auto;display:flex;align-items:center;gap:10px;height:clamp(44px,7.4vh,62px)}
+.kopmascotte{flex:0 0 auto;display:block;width:clamp(34px,5.6vh,46px)}
+.kopnaam{font-weight:bold;color:var(--roze-diep);font-size:clamp(15px,2.4vh,21px);white-space:nowrap}
+.kopmidden{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;max-width:340px}
+.kopmidden .regel{display:flex;justify-content:space-between;font-size:clamp(11px,1.7vh,14px);color:var(--zacht)}
+.chip{
+  background:#fff;border:2px solid var(--roze-rand);border-radius:999px;
+  padding:4px 12px;font-weight:bold;white-space:nowrap;font-size:clamp(13px,2vh,18px);
+  box-shadow:var(--schaduw)
+}
+.rondknop{
+  border:none;background:#fff;border-radius:50%;
+  width:clamp(38px,6.2vh,50px);height:clamp(38px,6.2vh,50px);
+  font-size:clamp(16px,2.8vh,24px);cursor:pointer;box-shadow:var(--schaduw);flex:0 0 auto;line-height:1
+}
+.rondknop:active{transform:translateY(2px)}
+
+.balk{height:10px;background:#ffdcea;border-radius:999px;overflow:hidden;width:100%}
+.balk i{display:block;height:100%;background:linear-gradient(90deg,#ff8fb8,var(--roze));border-radius:999px;transition:width .5s}
+
+/* -------------------------------------------------------------- scherm ---- */
+#scherm{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;gap:6px}
+
+.kaart{
+  flex:1 1 auto;min-height:0;
+  background:var(--kaart);border:3px solid var(--roze-rand);border-radius:22px;
+  padding:clamp(8px,1.6vh,16px) clamp(10px,1.6vw,20px);
+  box-shadow:var(--schaduw);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.kaart.schuif{overflow:auto;display:block}
+.kaartkop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto}
+.doellabel{font-size:clamp(11px,1.8vh,15px);color:var(--zacht);white-space:nowrap}
+.titelregel{margin:0 0 8px;color:var(--roze-diep);font-size:clamp(18px,3vh,26px)}
+.opdracht{font-size:var(--opdracht);margin:6px 0 8px;line-height:1.3;flex:0 0 auto}
+.werkvlak{
+  flex:1 1 auto;min-height:0;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+/* de eigenlijke inhoud van de vraag; deze wordt zo nodig verkleind zodat alles past */
+.werkinhoud{
+  width:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(6px,1.4vh,16px);
+}
+
+/* stippen: tien vragen per ronde */
+.stippen{display:flex;gap:5px;align-items:center}
+.stip{width:12px;height:12px;border-radius:50%;background:#ffe0ee;border:2px solid #ffc9df}
+.stip.goed{background:var(--roze);border-color:var(--roze-diep)}
+.stip.half{background:#ffc04d;border-color:#e09a20}
+.stip.fout{background:#e2d3da;border-color:#c9b6c0}
+.stip.nu{background:#fff;border-color:var(--roze);box-shadow:0 0 0 3px rgba(255,77,135,.25)}
+.stippen.groot .stip{width:18px;height:18px}
+
+/* ---------------------------------------------------------- onderbalk ---- */
+#onderbalk{
+  flex:0 0 auto;display:flex;align-items:center;justify-content:center;
+  gap:clamp(6px,1vw,14px);flex-wrap:wrap;
+  min-height:calc(var(--toets) + 14px);
+  border-radius:20px;padding:5px 10px;
+}
+#onderbalk:empty{min-height:0;padding:0}
+#onderbalk.feedback{border:3px solid transparent}
+#onderbalk.feedback.goed{background:#e7f9ee;border-color:#a6e6c1;color:#0b7a41}
+#onderbalk.feedback.fout{background:#fff0f4;border-color:#f9c3d0;color:#b41d3a}
+.boodschap{display:flex;align-items:center;gap:10px;font-size:clamp(15px,2.4vh,21px);font-weight:bold}
+.boodschap .ic{font-size:clamp(20px,3.4vh,30px)}
+.boodschap .normaal{font-weight:normal}
+.hint{color:var(--zacht);font-size:clamp(13px,2vh,17px)}
+
+/* --------------------------------------------------------------- knoppen -- */
+.knop{
+  font-family:inherit;font-weight:bold;border:none;cursor:pointer;
+  background:var(--roze);color:#fff;border-radius:16px;
+  font-size:clamp(15px,2.4vh,21px);padding:clamp(8px,1.4vh,14px) clamp(16px,2.4vw,30px);
+  box-shadow:0 4px 0 var(--roze-diep);
+}
+.knop:active{transform:translateY(3px);box-shadow:0 1px 0 var(--roze-diep)}
+.knop.stil{background:#ffeef5;color:var(--roze-diep);box-shadow:0 4px 0 var(--roze-rand)}
+.knop.groen{background:var(--goed);box-shadow:0 4px 0 #0a7a43}
+.knop.groot{font-size:clamp(17px,2.8vh,24px);padding:clamp(9px,1.6vh,16px) clamp(20px,3vw,40px)}
+.tekstknop{
+  background:none;border:none;font-family:inherit;color:var(--zacht);cursor:pointer;
+  font-size:clamp(12px,1.8vh,15px);text-decoration:underline;padding:6px
+}
+.ouderknop{flex:0 0 auto;align-self:center}
+
+/* --------------------------------------------------------------- invoer -- */
+.num{
+  font-family:inherit;font-weight:bold;text-align:center;color:var(--ink);
+  font-size:calc(var(--vak-h) * .52);
+  width:var(--vak-b);height:var(--vak-h);
+  border:3px solid var(--roze-rand);border-radius:14px;background:#fff7fb;caret-color:transparent;
+}
+.num:focus{outline:none}
+.num.actief{border-color:var(--roze);background:#fff;box-shadow:0 0 0 4px rgba(255,77,135,.2)}
+.num.hersteld{border-color:var(--goed);background:#e9faf0;color:var(--goed)}
+.som{display:flex;align-items:center;justify-content:center;gap:10px;font-size:var(--groot);font-weight:bold;flex-wrap:wrap}
+.som .num{font-size:calc(var(--vak-h) * .5)}
+
+/* cijferpad: op een liggend scherm past het in één rij */
+.keypad{display:flex;gap:clamp(4px,.6vw,9px);justify-content:center;flex-wrap:wrap}
+.keypad button{
+  font-family:inherit;font-weight:bold;border:none;border-radius:14px;cursor:pointer;
+  width:var(--toets);height:var(--toets);font-size:calc(var(--toets) * .48);
+  background:#ffeef5;color:var(--roze-diep);box-shadow:0 3px 0 var(--roze-rand);
+}
+.keypad button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--roze-rand)}
+.keypad button.wis{background:#ffe0e6;box-shadow:0 3px 0 #f6bcc7}
+
+/* --------------------------------------------------------------- keuzes -- */
+.keuzes{display:flex;gap:clamp(8px,1.4vw,18px);flex-wrap:wrap;justify-content:center}
+.keuze{
+  font-family:inherit;font-weight:bold;cursor:pointer;background:#fff7fb;color:var(--ink);
+  font-size:clamp(17px,3vh,27px);border:3px solid var(--roze-rand);border-radius:18px;
+  padding:clamp(8px,1.6vh,16px) clamp(12px,2vw,26px);min-width:clamp(80px,10vw,112px);
+}
+.keuze:active{transform:scale(.97)}
+.keuze.plaatje{padding:8px}
+.keuze.goedgekozen{border-color:var(--goed);background:#e9faf0}
+.keuze.foutgekozen{border-color:var(--fout);background:#ffeef1}
+
+/* --------------------------------------------------------- honderdveld --- */
+.veld{display:grid;grid-template-columns:repeat(10,1fr);gap:clamp(3px,.5vh,6px);width:100%;max-width:min(760px,88vw)}
+.cel{
+  background:#fff2f8;border-radius:10px;height:clamp(32px,6vh,52px);
+  display:flex;align-items:center;justify-content:center;
+  font-size:clamp(13px,2.3vh,20px);font-weight:bold;color:var(--zacht)
+}
+.cel.tien{background:#ffdcea;color:var(--roze-diep)}
+.cel .num{width:100%;height:clamp(32px,6vh,52px);font-size:clamp(13px,2.3vh,20px);border-width:2px;border-radius:10px}
+.rij{display:flex;gap:clamp(6px,1vw,12px);align-items:center;justify-content:center;flex-wrap:wrap}
+.hokje{
+  min-width:clamp(62px,8vw,86px);height:var(--vak-h);border-radius:14px;background:#fff2f8;
+  display:flex;align-items:center;justify-content:center;padding:0 8px;
+  font-size:calc(var(--vak-h) * .45);font-weight:bold
+}
+.pijl{font-size:26px;color:var(--zacht)}
+.label{font-size:clamp(11px,1.8vh,15px);color:var(--zacht);text-align:center;margin:0}
+.klein{font-size:clamp(11px,1.8vh,15px);color:var(--zacht)}
+.midden{text-align:center}
+
+/* ------------------------------------------------------ slepen en tikken -- */
+.sleep{cursor:grab;user-select:none;touch-action:none}
+.sleep.opgepakt{outline:4px solid var(--roze);outline-offset:3px;border-radius:12px;transform:scale(1.06)}
+.sleepklon{position:fixed;z-index:99;pointer-events:none;opacity:.92;transform:translate(-50%,-50%) scale(1.1)}
+.dropzone{transition:background .12s,border-color .12s}
+.dropzone.hover{background:#ffe6f0;border-color:var(--roze)}
+.bak{
+  border:3px dashed var(--roze-rand);border-radius:18px;background:#fffafc;
+  padding:8px;min-height:clamp(60px,12vh,110px);
+  display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center
+}
+.voorraad{
+  background:#fff2f8;border-radius:18px;padding:8px;
+  display:flex;gap:clamp(6px,1vw,14px);flex-wrap:wrap;justify-content:center
+}
+.hulpvak{background:#fffbe8;border:3px solid #ffe9a3;border-radius:18px;padding:10px;width:100%;max-width:min(660px,86vw)}
+
+/* -------------------------------------------------- start- en eindscherm -- */
+.start{
+  flex:1 1 auto;min-height:0;
+  display:flex;gap:clamp(10px,2vw,26px);align-items:stretch;
+}
+.startlinks,.startrechts{
+  flex:1 1 0;min-width:0;background:#fff;border:3px solid var(--roze-rand);border-radius:22px;
+  box-shadow:var(--schaduw);padding:clamp(8px,1.8vh,18px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(4px,1.1vh,12px);text-align:center;overflow:hidden
+}
+.startlinks h2{margin:0;font-size:clamp(19px,3.4vh,30px);color:var(--roze-diep)}
+.grootgetal{font-size:clamp(26px,5.6vh,48px);font-weight:bold;color:var(--roze-diep);line-height:1}
+.rangregel{font-size:clamp(14px,2.2vh,19px)}
+.startrechts .balk{max-width:280px}
+.dagreeks{
+  background:#fff3e6;border:2px solid #ffd6a8;border-radius:999px;padding:5px 14px;
+  font-size:clamp(12px,2vh,16px)
+}
+.stickerrij{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.nieuwesticker{
+  background:#fffbe8;border:3px solid #ffe9a3;border-radius:18px;padding:8px 14px;
+  display:flex;flex-direction:column;align-items:center;gap:6px
+}
+
+/* ---------------------------------------------------------- stickerkast -- */
+.stickerkast{
+  display:grid;grid-template-columns:repeat(8,1fr);gap:clamp(6px,1.4vh,14px);
+  margin:10px 0;justify-items:center
+}
+.stickervak{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.sticker{
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 0 rgba(198,42,92,.12);border:3px solid #fff
+}
+.sticker.op-slot{opacity:.55;filter:grayscale(.6)}
+.sticker.popt{animation:popt .5s backwards}
+@keyframes popt{from{transform:scale(0) rotate(-30deg)}to{transform:none}}
+
+table.oudertabel{border-collapse:collapse;width:100%;margin:8px 0;font-size:clamp(12px,1.9vh,16px)}
+table.oudertabel td,table.oudertabel th{text-align:left;padding:5px 8px;border-bottom:1px solid var(--roze-rand)}
+
+/* ------------------------------------------------------------- melding --- */
+#toast{
+  position:fixed;left:50%;top:10px;transform:translate(-50%,-140%);
+  background:#43263a;color:#fff;border-radius:999px;padding:10px 22px;font-weight:bold;
+  font-size:clamp(14px,2.2vh,19px);box-shadow:0 8px 20px rgba(0,0,0,.2);
+  transition:transform .3s;z-index:50;pointer-events:none;white-space:nowrap
+}
+#toast.zichtbaar{transform:translate(-50%,0)}
+
+/* ------------------------------------------- staand scherm: ook bruikbaar - */
+@media (orientation:portrait){
+  .start{flex-direction:column}
+  .stickerkast{grid-template-columns:repeat(4,1fr)}
+  .kopmidden{display:none}
+}
