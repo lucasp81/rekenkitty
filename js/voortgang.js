@@ -24,13 +24,32 @@ const STICKERS = [
   { emoji: "🍒", naam: "Kersjes", kleur: "#ffdfe4" },
   { emoji: "🦋", naam: "Vlinder", kleur: "#e2f0ff" },
   { emoji: "🐱", naam: "Poesje", kleur: "#ffeaf2" },
-  { emoji: "🌟", naam: "Superster", kleur: "#fff3cf" }
+  { emoji: "🌟", naam: "Superster", kleur: "#fff3cf" },
+  /* erbij gekomen in blok 2 */
+  { emoji: "🦄", naam: "Eenhoorn", kleur: "#f3e6ff" },
+  { emoji: "🌻", naam: "Zonnebloem", kleur: "#fff4c7" },
+  { emoji: "🍩", naam: "Donut", kleur: "#ffe3ef" },
+  { emoji: "🐞", naam: "Lieveheersbeestje", kleur: "#ffe0e0" },
+  { emoji: "🍭", naam: "Lolly", kleur: "#ffe6f5" },
+  { emoji: "🐬", naam: "Dolfijn", kleur: "#dff1ff" },
+  { emoji: "🌙", naam: "Maantje", kleur: "#fff6d6" },
+  { emoji: "🍉", naam: "Watermeloen", kleur: "#e4f7e4" },
+  { emoji: "🐰", naam: "Konijntje", kleur: "#f4ecf7" },
+  { emoji: "🎠", naam: "Draaimolen", kleur: "#ffe8e0" },
+  { emoji: "🐣", naam: "Kuikentje", kleur: "#fff5cc" },
+  { emoji: "🍪", naam: "Koekje", kleur: "#f7ead9" },
+  { emoji: "🐼", naam: "Panda", kleur: "#eeeeee" },
+  { emoji: "🌺", naam: "Hibiscus", kleur: "#ffe0e8" },
+  { emoji: "🎪", naam: "Circus", kleur: "#ffe5e5" },
+  { emoji: "💎", naam: "Diamant", kleur: "#e0f4ff" }
 ];
 const PUNTEN_PER_STICKER = 60;
 
 /* Hoe ze heet als ze weer een niveau hoger komt. */
 const RANGEN = ["Rekenpoesje", "Rekenvriendje", "Rekenster", "Rekenheld",
-                "Rekenkampioen", "Rekenprinses", "Rekenkoningin", "Rekenlegende"];
+                "Rekenkampioen", "Rekenprinses", "Rekenkoningin", "Rekenlegende",
+                "Rekentovenaar", "Rekenfee", "Rekenkeizerin", "Rekenwonder",
+                "Rekenregenboog", "Rekensuperster", "Rekengenie", "Rekenlegende met kroon"];
 const PUNTEN_PER_NIVEAU = 100;
 
 /* Wat een goed antwoord oplevert. */
@@ -44,6 +63,7 @@ const Voortgang = (() => {
   const leeg = {
     punten: 0,
     stickers: 0,          /* hoeveel stickers er vrijgespeeld zijn */
+    stickerDrempel: PUNTEN_PER_STICKER,   /* bij zoveel punten komt de volgende sticker vrij */
     dagen: 0,
     laatsteDag: null,     /* "2026-08-31" */
     rondes: 0,
@@ -57,7 +77,15 @@ const Voortgang = (() => {
 
   try {
     const rauw = localStorage.getItem(SLEUTEL);
-    if (rauw) d = Object.assign(d, JSON.parse(rauw));
+    if (rauw) {
+      const oud = JSON.parse(rauw);
+      d = Object.assign(d, oud);
+      /* Opslag van vóór blok 2 kende nog geen drempel. Wie toen al alle 16 stickers had,
+         verdient de nieuwe stickers vanaf nu, elke 60 punten één, in plaats van allemaal tegelijk. */
+      if (oud.stickerDrempel === undefined)
+        d.stickerDrempel = d.stickers < 16 ? (d.stickers + 1) * PUNTEN_PER_STICKER
+          : (Math.floor(d.punten / PUNTEN_PER_STICKER) + 1) * PUNTEN_PER_STICKER;
+    }
   } catch (e) { /* geen opslag beschikbaar: dan onthoudt hij het alleen deze sessie */ }
 
   function bewaar() {
@@ -90,18 +118,21 @@ const Voortgang = (() => {
     deelVanNiveau() { return (d.punten % PUNTEN_PER_NIVEAU) / PUNTEN_PER_NIVEAU; },
 
     /* ---------- stickers ---------- */
-    verdiend() { return Math.min(STICKERS.length, Math.floor(d.punten / PUNTEN_PER_STICKER)); },
-    /* Geeft de stickers terug die er sinds de vorige keer bij gekomen zijn. */
+    verdiend() { return Math.min(STICKERS.length, d.stickers); },
+    /* Aan het eind van een ronde: geeft de stickers terug die er nu bij komen. */
     nieuweStickers() {
-      const nu = this.verdiend();
       const nieuw = [];
-      for (let i = d.stickers; i < nu; i++) nieuw.push(i);
-      if (nieuw.length) { d.stickers = nu; bewaar(); }
+      while (d.stickers < STICKERS.length && d.punten >= d.stickerDrempel) {
+        nieuw.push(d.stickers);
+        d.stickers++;
+        d.stickerDrempel += PUNTEN_PER_STICKER;
+      }
+      if (nieuw.length) bewaar();
       return nieuw;
     },
     puntenTotVolgendeSticker() {
       if (this.verdiend() >= STICKERS.length) return 0;
-      return (this.verdiend() + 1) * PUNTEN_PER_STICKER - d.punten;
+      return Math.max(0, d.stickerDrempel - d.punten);
     },
 
     /* ---------- dagreeks ---------- */

@@ -1,13 +1,19 @@
 /* =========================================================================
    app.js - de schermen, de oefenronde en de puntentelling
 
-   Er is maar één manier van spelen: een ronde van tien vragen waarin alle tien
-   de lesdoelen van blok 1 een keer langskomen, in willekeurige volgorde.
+   Een ronde is tien vragen. Bij "Blok 2" (of "Blok 1") komen alle tien de
+   lesdoelen van dat blok een keer langs, in willekeurige volgorde. "Door elkaar"
+   neemt vijf lesdoelen uit elk blok.
    Alles past op één liggend tabletscherm; er hoeft nooit gescrold te worden.
    ========================================================================= */
 "use strict";
 
 const VRAGEN_PER_RONDE = 10;
+const RONDESOORTEN = {
+  blok2: { naam: "Blok 2", maak: () => schud(SPELVOLGORDE_BLOK2) },
+  blok1: { naam: "Blok 1", maak: () => schud(SPELVOLGORDE) },
+  mix: { naam: "Door elkaar", maak: () => schud(schud(SPELVOLGORDE).slice(0, 5).concat(schud(SPELVOLGORDE_BLOK2).slice(0, 5))) }
+};
 const LOF = ["Goed zo!", "Top!", "Knap gedaan!", "Yes!", "Super!", "Helemaal goed!", "Prima!", "Wat slim!"];
 const BIJNA = ["Bijna! Kijk nog eens goed.", "Net niet. Probeer het nog een keer.", "Nog eentje proberen?"];
 
@@ -68,23 +74,39 @@ function toonStart() {
   const hervat = Voortgang.ronde && Voortgang.ronde.nr > 0 && Voortgang.ronde.nr < VRAGEN_PER_RONDE;
 
   const links = el("div", { class: "startlinks" });
-  links.appendChild(poesjeOfPlaatje(EIGEN_PLAATJES.mascotte, 132));
+  links.appendChild(poesjeOfPlaatje(EIGEN_PLAATJES.mascotte, 112));
   links.appendChild(el("h2", { tekst: "Hoi! 🎀" }));
-  links.appendChild(el("p", {
-    class: "klein",
-    tekst: hervat
-      ? "Je was bezig met een ronde. Je punten staan nog gewoon klaar!"
-      : "Tien vragen door elkaar. Alles wat je in blok 1 leert komt langs."
-  }));
-  links.appendChild(el("button", {
-    class: "knop groot", type: "button",
-    tekst: hervat ? "▶ Verder met vraag " + (Voortgang.ronde.nr + 1) : "▶ Spelen",
-    onclick: () => { Geluid.klik(); Motor.begin(hervat); }
-  }));
-  if (hervat) links.appendChild(el("button", {
-    class: "tekstknop", type: "button", tekst: "Liever helemaal opnieuw beginnen",
-    onclick: () => { Voortgang.vergeetRonde(); Motor.begin(false); }
-  }));
+  if (hervat) {
+    const soort = RONDESOORTEN[Voortgang.ronde.soort];
+    links.appendChild(el("p", {
+      class: "klein",
+      tekst: "Je was bezig met een ronde" + (soort ? " (" + soort.naam.toLowerCase() + ")" : "") + ". Je punten staan nog gewoon klaar!"
+    }));
+    links.appendChild(el("button", {
+      class: "knop groot", type: "button", tekst: "▶ Verder met vraag " + (Voortgang.ronde.nr + 1),
+      onclick: () => { Geluid.klik(); Motor.begin(true); }
+    }));
+    links.appendChild(el("button", {
+      class: "tekstknop", type: "button", tekst: "Liever helemaal opnieuw beginnen",
+      onclick: () => { Voortgang.vergeetRonde(); toonStart(); }
+    }));
+  } else {
+    links.appendChild(el("p", { class: "klein", tekst: "Tien vragen door elkaar. Wat wil je oefenen?" }));
+    links.appendChild(el("button", {
+      class: "knop groot", type: "button", tekst: "▶ Blok 2",
+      onclick: () => { Geluid.klik(); Motor.begin(false, "blok2"); }
+    }));
+    links.appendChild(el("div", { class: "rij", stijl: "gap:10px" }, [
+      el("button", {
+        class: "knop stil", type: "button", tekst: "Blok 1 herhalen",
+        onclick: () => { Geluid.klik(); Motor.begin(false, "blok1"); }
+      }),
+      el("button", {
+        class: "knop stil", type: "button", tekst: "🔀 Door elkaar",
+        onclick: () => { Geluid.klik(); Motor.begin(false, "mix"); }
+      })
+    ]));
+  }
 
   const rechts = el("div", { class: "startrechts" });
   rechts.appendChild(el("div", { class: "grootgetal", html: "⭐ " + Voortgang.punten }));
@@ -147,7 +169,7 @@ function toonStickers() {
   const verdiend = Voortgang.verdiend();
   STICKERS.forEach((st, i) => {
     const vak = el("div", { class: "stickervak" });
-    vak.appendChild(stickerBol(i, i < verdiend, 62));
+    vak.appendChild(stickerBol(i, i < verdiend, 50));
     vak.appendChild(el("div", { class: "klein", tekst: i < verdiend ? st.naam : "?" }));
     rooster.appendChild(vak);
   });
@@ -174,18 +196,22 @@ function toonOuders() {
   const kaart = el("div", { class: "kaart schuif" });
   kaart.innerHTML =
     "<h2 class='titelregel'>Voor papa, mama of de juf</h2>" +
-    "<p class='klein'>Elke ronde bestaat uit tien vragen: de tien lesdoelen van <i>Alles telt Q, groep 4, blok 1</i>, " +
-    "elk één keer, in willekeurige volgorde. Door elkaar oefenen blijft beter hangen dan tien keer hetzelfde soort som.</p>" +
+    "<p class='klein'>Elke ronde bestaat uit tien vragen. Kiest ze <b>Blok 2</b> of <b>Blok 1</b>, dan komen de tien lesdoelen " +
+    "van dat blok van <i>Alles telt Q, groep 4</i> elk één keer langs, in willekeurige volgorde. <b>Door elkaar</b> neemt " +
+    "vijf lesdoelen uit elk blok. Door elkaar oefenen blijft beter hangen dan tien keer hetzelfde soort som.</p>" +
     "<p class='klein'>Elk lesdoel heeft een eigen niveau (1, 2 of 3) dat meebeweegt: twee keer achter elkaar in één keer goed " +
     "en het wordt moeilijker, een fout maakt het weer makkelijker. Bij een fout mag ze het altijd eerst nog een keer zelf " +
     "proberen; pas daarna volgt het antwoord met uitleg. Er staat geen klok bij.</p>";
   const tabel = el("table", { class: "oudertabel" });
-  let html = "<tr><th>Lesdoel</th><th>Niveau</th><th>Goed</th></tr>";
-  SPELVOLGORDE.forEach(id => {
-    const s = Voortgang.statsVan(id);
-    const pct = s.totaal ? Math.round(s.goed / s.totaal * 100) + "%" : "–";
-    html += "<tr><td>" + SPELLEN[id].doel + "</td><td>" + Voortgang.niveauVan(id) +
-      "</td><td>" + s.goed + " / " + s.totaal + " <span class='klein'>(" + pct + ")</span></td></tr>";
+  let html = "";
+  [["Blok 2", SPELVOLGORDE_BLOK2], ["Blok 1", SPELVOLGORDE]].forEach(([blok, ids]) => {
+    html += "<tr><th>" + blok + "</th><th>Niveau</th><th>In één keer goed</th></tr>";
+    ids.forEach(id => {
+      const s = Voortgang.statsVan(id);
+      const pct = s.totaal ? Math.round(s.goed / s.totaal * 100) + "%" : "–";
+      html += "<tr><td>" + SPELLEN[id].doel + "</td><td>" + Voortgang.niveauVan(id) +
+        "</td><td>" + s.goed + " / " + s.totaal + " <span class='klein'>(" + pct + ")</span></td></tr>";
+    });
   });
   tabel.innerHTML = html;
   kaart.appendChild(tabel);
@@ -212,19 +238,21 @@ function toonOuders() {
    De oefenronde
    ========================================================================= */
 const Motor = {
-  actief: false, volgorde: [], nr: 0, puntenRonde: 0, goedOpRij: 0, resultaten: [],
+  actief: false, soort: "blok2", volgorde: [], nr: 0, puntenRonde: 0, goedOpRij: 0, resultaten: [],
   doel: null, niveau: 1, vraag: null, poging: 0, bezig: false, werkvlak: null,
 
-  begin(hervat) {
+  begin(hervat, soort) {
     const opgeslagen = Voortgang.ronde;
     if (hervat && opgeslagen) {
-      this.volgorde = opgeslagen.volgorde;
+      this.soort = opgeslagen.soort || "blok1";   /* rondes van vóór blok 2 waren altijd blok 1 */
+      this.volgorde = opgeslagen.volgorde.filter(id => SPELLEN[id]);
       this.nr = opgeslagen.nr;
       this.puntenRonde = opgeslagen.punten;
       this.goedOpRij = opgeslagen.goedOpRij || 0;
       this.resultaten = opgeslagen.resultaten || [];
     } else {
-      this.volgorde = schud(SPELVOLGORDE);
+      this.soort = RONDESOORTEN[soort] ? soort : "blok2";
+      this.volgorde = RONDESOORTEN[this.soort].maak();
       this.nr = 0; this.puntenRonde = 0; this.goedOpRij = 0; this.resultaten = [];
       if (Voortgang.nieuweDag()) {
         Voortgang.telPunten(BONUS_NIEUWE_DAG);
@@ -238,13 +266,13 @@ const Motor = {
 
   bewaarStand() {
     Voortgang.bewaarRonde({
-      volgorde: this.volgorde, nr: this.nr, punten: this.puntenRonde,
+      soort: this.soort, volgorde: this.volgorde, nr: this.nr, punten: this.puntenRonde,
       goedOpRij: this.goedOpRij, resultaten: this.resultaten
     });
   },
 
   volgende() {
-    if (this.nr >= VRAGEN_PER_RONDE) return this.einde();
+    if (this.nr >= VRAGEN_PER_RONDE || this.nr >= this.volgorde.length) return this.einde();
     this.doel = this.volgorde[this.nr];
     this.niveau = Voortgang.niveauVan(this.doel);
     this.vraag = SPELLEN[this.doel].maak(this.niveau);
@@ -449,7 +477,7 @@ const Motor = {
     scherm.appendChild(el("div", { class: "start" }, [links, rechts]));
     onderbalk.appendChild(el("button", {
       class: "knop groot groen", type: "button", tekst: "▶ Nog een ronde",
-      onclick: () => this.begin(false)
+      onclick: () => this.begin(false, this.soort)
     }));
     onderbalk.appendChild(el("button", { class: "knop stil", type: "button", tekst: "🏠 Naar het begin", onclick: toonStart }));
     kop();

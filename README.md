@@ -1,13 +1,36 @@
 # Rekenkitty
 
-Een rekenoefenapp voor groep 4, gemaakt bij de lesdoelen van **Alles telt Q, groep 4, blok 1**.
+Een rekenoefenapp voor groep 4, gemaakt bij de lesdoelen van **Alles telt Q, groep 4, blok 1 en blok 2**.
 Bedoeld voor een tablet in liggende stand: alles gaat met tikken en slepen, er komt nooit een
 schermtoetsenbord in beeld en er hoeft nooit gescrold te worden.
 
-Eén ronde is tien vragen. Alle tien de lesdoelen komen daarin één keer voorbij, in willekeurige
-volgorde — door elkaar oefenen blijft beter hangen dan tien keer hetzelfde soort som.
+Eén ronde is tien vragen. Op het startscherm kiest ze **Blok 2**, **Blok 1 herhalen** of **Door
+elkaar**. Bij een blok komen alle tien de lesdoelen van dat blok één keer voorbij, in willekeurige
+volgorde; "Door elkaar" neemt vijf lesdoelen uit elk blok. Door elkaar oefenen blijft beter hangen
+dan tien keer hetzelfde soort som.
 
-## Wat er geoefend wordt
+## Wat er geoefend wordt in blok 2
+
+| Lesdoel | Wat ze doet |
+| --- | --- |
+| Ik oefen optellen en aftrekken over het tiental | tot 20, daarna tot 100 (47 + 5, 63 − 8); ook in twee stappen via het tiental |
+| Ik herken hoe een vierkant en een kubus bij elkaar horen | vierkant of kubus aanwijzen, stempelen met een kubus, 6 vierkanten tellen, de goede bouwplaat kiezen |
+| Ik oefen herhaald optellen | rijtjes (4 rijen van 5), sprongen op de getallenlijn, plussommen opschrijven, verhaaltjes |
+| Ik oefen klokkijken met hele en halve uren | klok aflezen, de goede klok kiezen, zelf de klok zetten, een half uur later/eerder |
+| Ik verdeel kleine hoeveelheden eerlijk | uitdelen over bordjes (vanaf niveau 3 met rest) |
+| Ik leer over de waarde van geld | munten en briefjes herkennen, wat is meer waard, hoeveel munten van 50 cent is 1 euro, ordenen |
+| Ik reken met geld | geld tellen in euro's, precies betalen, samen kosten, wisselgeld, "heb ik genoeg?" |
+| Ik leer tabellen en diagrammen gebruiken | pictogram, staafdiagram en turftabel aflezen: hoeveel, meeste/minste, verschil, totaal |
+| Ik verdeel hoeveelheden tot en met 100 | tienstaven en blokjes uitdelen (op niveau 3 met inwisselen), de helft, verhaaltjes |
+| Ik leer patronen spiegelen | een patroon aan de andere kant van de spiegellijn afmaken, of het goede spiegelbeeld kiezen |
+
+Het ×-teken en het :-teken worden niet gebruikt; herhaald optellen en verdelen staan steeds als
+plussom of in woorden.
+
+De munten zijn getekend in hun echte verhoudingen: de munt van 50 cent is groter dan die van
+1 euro. Daar zitten bewust vragen over.
+
+## Wat er geoefend wordt in blok 1
 
 | Lesdoel | Wat ze doet |
 | --- | --- |
@@ -31,8 +54,10 @@ eerst nog een keer zelf proberen; pas daarna volgt het antwoord met uitleg. Er s
 * **10 punten** voor een antwoord dat in één keer goed is, **5** als het bij de tweede poging lukt.
 * **+10 bonus** bij elke drie goede antwoorden op rij.
 * **+20 bonus** voor de eerste ronde van de dag; het vlammetje 🔥 telt de dagen op rij.
-* Elke **100 punten** een niveau hoger, met een nieuwe naam: van Rekenpoesje tot Rekenlegende.
-* Elke **60 punten** een nieuwe sticker voor de stickerkast (16 in totaal).
+* Elke **100 punten** een niveau hoger, met een nieuwe naam: van Rekenpoesje via Rekenlegende tot Rekengenie (en daarna "Rekenlegende met kroon").
+* Elke **60 punten** een nieuwe sticker voor de stickerkast (32 in totaal; de laatste 16 zijn er
+  bij blok 2 bijgekomen). Had ze al alle 16 oude stickers, dan verdient ze de nieuwe vanaf nu,
+  gewoon elke 60 punten één.
 
 Alles wordt na élke vraag opgeslagen in de browser van de tablet. Wordt de pagina per ongeluk
 ververst, dan zijn de punten er nog gewoon en gaat de ronde verder waar hij gebleven was.
@@ -59,7 +84,7 @@ ververst, dan zijn de punten er nog gewoon en gaat de ronde verder waar hij gebl
 4. Na een minuut staat de app op `https://JOUWNAAM.github.io/rekenkitty/`.
 
 Later iets aangepast? Push de wijziging en zet in `sw.js` het nummer bij `VERSIE` één hoger
-(`rekenkitty-v1` wordt `rekenkitty-v2`). Dan haalt de tablet de nieuwe versie op in plaats van de
+(nu staat er `rekenkitty-v2`; de volgende keer wordt dat `rekenkitty-v3`). Dan haalt de tablet de nieuwe versie op in plaats van de
 opgeslagen oude.
 
 ## Op de tablet zetten
@@ -97,7 +122,8 @@ index.html                de pagina zelf
 css/stijl.css             de opmaak (alles past op één liggend scherm)
 js/kern.js                hulpjes, geluid, slepen en tikken, de tekeningen
 js/voortgang.js           punten, niveaus, stickers, dagreeks en het bewaren
-js/spellen.js             een vraaggenerator per lesdoel
+js/spellen.js             een vraaggenerator per lesdoel van blok 1
+js/spellen2.js            een vraaggenerator per lesdoel van blok 2
 js/app.js                 de schermen, de ronde en de puntentelling
 iconen/                   app-iconen (en maak-iconen.py om ze opnieuw te tekenen)
 plaatjes/                 hier kun je eigen plaatjes neerzetten

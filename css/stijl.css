@@ -239,6 +239,34 @@ body{
 .sticker.popt{animation:popt .5s backwards}
 @keyframes popt{from{transform:scale(0) rotate(-30deg)}to{transform:none}}
 
+/* ------------------------------------------------------------- blok 2 --- */
+.prijskaartje{
+  background:#fff3c4;border:2px solid #e3c35a;border-radius:8px;padding:2px 10px;
+  font-weight:bold;font-size:clamp(14px,2.2vh,19px);white-space:nowrap
+}
+.ordenknop{position:relative}
+.ordenknop .nummer{
+  position:absolute;top:-12px;left:-12px;width:34px;height:34px;border-radius:50%;
+  background:var(--roze);color:#fff;font-size:20px;line-height:34px;text-align:center;
+  box-shadow:0 2px 0 var(--roze-diep);visibility:hidden
+}
+.ordenknop.gekozen{border-color:var(--roze);background:#fff}
+.ordenknop.gekozen .nummer{visibility:visible}
+table.turftabel{border-collapse:collapse;background:#fbfdff;border:3px solid #cddcea;border-radius:12px}
+table.turftabel th,table.turftabel td{padding:4px 14px;border-bottom:1px solid #e1e9f1;text-align:left;font-size:clamp(14px,2.2vh,19px)}
+table.turftabel .num{height:clamp(38px,6.4vh,54px);width:clamp(54px,8vh,74px)}
+.werkinhoud{--cel:clamp(30px,6.4vh,50px)}
+.spiegelrij{display:flex;align-items:center;justify-content:center;gap:10px}
+.spiegelrij.liggend{flex-direction:column}
+.spiegelrooster{display:grid;gap:3px;grid-auto-rows:var(--cel)}
+.spiegelcel{width:var(--cel);height:var(--cel);border:2px solid #f0c9da;border-radius:6px}
+.spiegelcel.tikbaar{cursor:pointer;border-color:#e7a9c3}
+.spiegelcel.verbeterd{outline:3px solid var(--goed);outline-offset:-3px}
+.spiegellijn{align-self:stretch;width:6px;background:repeating-linear-gradient(#e0324f 0 12px,transparent 12px 18px);border-radius:3px}
+.spiegelrij.liggend .spiegellijn{width:auto;height:6px;background:repeating-linear-gradient(90deg,#e0324f 0 12px,transparent 12px 18px)}
+.spiegelleeg{align-self:stretch;border:3px dashed var(--roze-rand);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.spiegelleeg::after{content:"?";font-size:40px;color:var(--roze-rand);font-weight:bold}
+
 table.oudertabel{border-collapse:collapse;width:100%;margin:8px 0;font-size:clamp(12px,1.9vh,16px)}
 table.oudertabel td,table.oudertabel th{text-align:left;padding:5px 8px;border-bottom:1px solid var(--roze-rand)}
 

@@ -1,7 +1,7 @@
 {
   "name": "Rekenkitty",
   "short_name": "Rekenkitty",
-  "description": "Rekenen oefenen bij de lesdoelen van groep 4, blok 1.",
+  "description": "Rekenen oefenen bij de lesdoelen van groep 4, blok 1 en 2.",
   "lang": "nl",
   "start_url": "./",
   "scope": "./",
