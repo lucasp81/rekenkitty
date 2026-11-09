@@ -71,6 +71,7 @@ const Voortgang = (() => {
     opRij: {},            /* per lesdoel: hoe vaak achter elkaar in één keer goed */
     stats: {},            /* per lesdoel {goed, totaal} */
     ronde: null,          /* de ronde waar ze nu mee bezig is */
+    nogTeDoen: {},        /* per blok: lesdoelen die in deze cyclus nog niet aan de beurt waren */
     geluid: true
   };
   let d = JSON.parse(JSON.stringify(leeg));
@@ -169,6 +170,23 @@ const Voortgang = (() => {
       bewaar();
     },
     statsVan(doel) { return d.stats[doel] || { goed: 0, totaal: 0 }; },
+
+    /* Kiest n lesdoelen uit ids, eerst de lesdoelen die nog niet aan de beurt waren.
+       Zijn ze allemaal geweest, dan begint er een nieuwe cyclus. */
+    kiesUit(sleutel, ids, n) {
+      if (!d.nogTeDoen) d.nogTeDoen = {};
+      let pool = (d.nogTeDoen[sleutel] || []).filter(id => ids.includes(id));
+      let gekozen = schud(pool).slice(0, n);
+      pool = pool.filter(id => !gekozen.includes(id));
+      if (gekozen.length < n) {
+        const erbij = schud(ids.filter(id => !gekozen.includes(id))).slice(0, n - gekozen.length);
+        gekozen = gekozen.concat(erbij);
+        pool = ids.filter(id => !erbij.includes(id));
+      }
+      d.nogTeDoen[sleutel] = pool;
+      bewaar();
+      return gekozen;
+    },
 
     /* ---------- de lopende ronde ---------- */
     bewaarRonde(ronde) { d.ronde = ronde; bewaar(); },

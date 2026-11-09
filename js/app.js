@@ -1,15 +1,21 @@
 /* =========================================================================
    app.js - de schermen, de oefenronde en de puntentelling
 
-   Een ronde is tien vragen. Bij "Blok 2" (of "Blok 1") komen alle tien de
-   lesdoelen van dat blok een keer langs, in willekeurige volgorde. "Door elkaar"
-   neemt vijf lesdoelen uit elk blok.
+   Een ronde is tien vragen: vijf lesdoelen uit blok 1 en vijf uit blok 2, door
+   elkaar. De volgende ronde neemt de vijf die de vorige keer niet aan de beurt
+   waren, zodat in elke twee rondes alle twintig lesdoelen langskomen.
    Alles past op één liggend tabletscherm; er hoeft nooit gescrold te worden.
    ========================================================================= */
 "use strict";
 
 const VRAGEN_PER_RONDE = 10;
 const RONDESOORTEN = {
+  samen: {
+    naam: "Blok 1 en 2",
+    maak: () => schud(Voortgang.kiesUit("blok1", SPELVOLGORDE, 5).concat(Voortgang.kiesUit("blok2", SPELVOLGORDE_BLOK2, 5)))
+  },
+  /* de soorten hieronder worden niet meer aangeboden; ze staan er nog zodat een
+     ronde die met een oudere versie begonnen is, gewoon afgemaakt kan worden */
   blok2: { naam: "Blok 2", maak: () => schud(SPELVOLGORDE_BLOK2) },
   blok1: { naam: "Blok 1", maak: () => schud(SPELVOLGORDE) },
   mix: { naam: "Door elkaar", maak: () => schud(schud(SPELVOLGORDE).slice(0, 5).concat(schud(SPELVOLGORDE_BLOK2).slice(0, 5))) }
@@ -91,21 +97,11 @@ function toonStart() {
       onclick: () => { Voortgang.vergeetRonde(); toonStart(); }
     }));
   } else {
-    links.appendChild(el("p", { class: "klein", tekst: "Tien vragen door elkaar. Wat wil je oefenen?" }));
+    links.appendChild(el("p", { class: "klein", tekst: "Tien vragen uit blok 1 en blok 2, door elkaar." }));
     links.appendChild(el("button", {
-      class: "knop groot", type: "button", tekst: "▶ Blok 2",
-      onclick: () => { Geluid.klik(); Motor.begin(false, "blok2"); }
+      class: "knop groot", type: "button", tekst: "▶ Start",
+      onclick: () => { Geluid.klik(); Motor.begin(false, "samen"); }
     }));
-    links.appendChild(el("div", { class: "rij", stijl: "gap:10px" }, [
-      el("button", {
-        class: "knop stil", type: "button", tekst: "Blok 1 herhalen",
-        onclick: () => { Geluid.klik(); Motor.begin(false, "blok1"); }
-      }),
-      el("button", {
-        class: "knop stil", type: "button", tekst: "🔀 Door elkaar",
-        onclick: () => { Geluid.klik(); Motor.begin(false, "mix"); }
-      })
-    ]));
   }
 
   const rechts = el("div", { class: "startrechts" });
@@ -188,20 +184,210 @@ function toonStickers() {
 /* =========================================================================
    Ouderhoek
    ========================================================================= */
+const DAG = 864e5;
+const PERIODES = [
+  { naam: "Vandaag", vanaf: () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); } },
+  { naam: "7 dagen", vanaf: () => { const d = new Date(Date.now() - 6 * DAG); d.setHours(0, 0, 0, 0); return d.getTime(); } },
+  { naam: "30 dagen", vanaf: () => { const d = new Date(Date.now() - 29 * DAG); d.setHours(0, 0, 0, 0); return d.getTime(); } },
+  { naam: "Alles", vanaf: () => 0 }
+];
+const ouderKeuze = { periode: 1, alleenFout: true };   /* blijft staan zolang de app open is */
+
+const UITSLAG = { 2: ["✅", "in één keer goed"], 1: ["🟡", "goed bij de 2e poging"], 0: ["❌", "niet goed"] };
+const datumKort = t => new Date(t).toLocaleDateString("nl-NL", { weekday: "short", day: "numeric", month: "short" });
+const datumLang = t => new Date(t).toLocaleDateString("nl-NL", { weekday: "long", day: "numeric", month: "long" });
+const tijdKort = t => new Date(t).toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+const doelNaam = id => SPELLEN[id] ? SPELLEN[id].emoji + " " + SPELLEN[id].titel : id;
+const blokVan = id => SPELVOLGORDE_BLOK2.includes(id) ? 2 : 1;
+const veilig = s => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+/* Wat ze antwoordde, in woorden: "eerst 12, daarna 13" */
+function pogingenTekst(r) {
+  const a = r.a || [];
+  if (!a.length || a.every(x => x == null)) return "";
+  if (a.length === 1) return a[0];
+  return "eerst " + (a[0] == null ? "(zie plaatje)" : a[0]) + ", daarna " + (a[1] == null ? "(zie plaatje)" : a[1]);
+}
+
+function telOp(regels) {
+  const t = { 2: 0, 1: 0, 0: 0, rondes: new Set(regels.map(r => r.rid)).size, perDoel: {} };
+  regels.forEach(r => {
+    t[r.r]++;
+    const p = t.perDoel[r.d] || (t.perDoel[r.d] = { 2: 0, 1: 0, 0: 0 });
+    p[r.r]++;
+  });
+  return t;
+}
+
+function rapportTekst(pi) {
+  const regels = Logboek.sinds(PERIODES[pi].vanaf());
+  const t = telOp(regels);
+  const uit = [];
+  const van = regels.length ? regels[0].t : Date.now();
+  uit.push("Rekenkitty – " + (pi === 0 || datumLang(van) === datumLang(Date.now())
+    ? datumLang(Date.now()) : datumLang(van) + " t/m " + datumLang(Date.now())));
+  if (!regels.length) { uit.push("", "In deze periode is er niet geoefend."); return uit.join("\n"); }
+  uit.push(t.rondes + (t.rondes === 1 ? " ronde, " : " rondes, ") + regels.length + " vragen: " +
+    t[2] + " in één keer goed, " + t[1] + " goed bij de 2e poging, " + t[0] + " niet goed.");
+  uit.push("", "Per lesdoel (✅ in één keer / 🟡 2e poging / ❌ niet goed, en het niveau nu):");
+  [SPELVOLGORDE_BLOK2, SPELVOLGORDE].forEach(ids => ids.forEach(id => {
+    const p = t.perDoel[id];
+    if (p) uit.push("• " + SPELLEN[id].titel + " (blok " + blokVan(id) + "): ✅ " + p[2] + "  🟡 " + p[1] +
+      "  ❌ " + p[0] + "  – niveau " + Voortgang.niveauVan(id));
+  }));
+  const mis = regels.filter(r => r.r < 2).reverse();
+  if (mis.length) {
+    uit.push("", "Niet in één keer goed (nieuwste eerst):");
+    mis.slice(0, 40).forEach(r => {
+      const ant = pogingenTekst(r);
+      let regel = UITSLAG[r.r][0] + " " + datumKort(r.t) + " · " + (SPELLEN[r.d] ? SPELLEN[r.d].titel : r.d) +
+        " (niveau " + r.n + "): " + r.o;
+      if (ant) regel += " — zij: " + ant;
+      if (r.r === 0 && r.g) regel += " — goed is: " + r.g;
+      else if (r.r === 0 && r.u) regel += " — uitleg: " + r.u;
+      uit.push(regel);
+    });
+    if (mis.length > 40) uit.push("… en nog " + (mis.length - 40) + " eerder.");
+  } else uit.push("", "Alles in één keer goed! 🎉");
+  return uit.join("\n");
+}
+
+function venster(titel, inhoud, knoppen) {
+  const achter = el("div", { class: "venster" });
+  const doos = el("div", { class: "vensterdoos" });
+  const sluit = () => achter.remove();
+  doos.appendChild(el("div", { class: "vensterkop" }, [
+    el("h3", { tekst: titel }),
+    el("button", { class: "rondknop", type: "button", tekst: "✕", title: "Sluiten", onclick: sluit })
+  ]));
+  doos.appendChild(inhoud);
+  if (knoppen) doos.appendChild(el("div", { class: "vensterknoppen" }, knoppen));
+  achter.appendChild(doos);
+  achter.addEventListener("click", e => { if (e.target === achter) sluit(); });
+  document.body.appendChild(achter);
+  return { sluit, doos };
+}
+
+async function verstuurRapport() {
+  const tekst = rapportTekst(ouderKeuze.periode);
+  if (navigator.share) {
+    try { await navigator.share({ title: "Rekenkitty-rapport", text: tekst }); return; }
+    catch (e) { if (e && e.name === "AbortError") return; }
+  }
+  /* geen deelmenu (bijvoorbeeld op een computer): laat de tekst zien om te kopiëren */
+  const vak = el("textarea", { class: "rapporttekst", readonly: "readonly" });
+  vak.value = tekst;
+  venster("Rapport", vak, [
+    el("button", {
+      class: "knop", type: "button", tekst: "📋 Kopiëren",
+      onclick() {
+        const klaar = () => melding("Gekopieerd");
+        if (navigator.clipboard) navigator.clipboard.writeText(tekst).then(klaar, () => { vak.select(); document.execCommand("copy"); klaar(); });
+        else { vak.select(); document.execCommand("copy"); klaar(); }
+      }
+    })
+  ]);
+}
+
+function toonKiekjes(r) {
+  const inhoud = el("div", { class: "kiekjes" });
+  let html = "<b>" + doelNaam(r.d) + "</b> · niveau " + r.n + " · " + datumKort(r.t) + " " + tijdKort(r.t) +
+    " · " + UITSLAG[r.r][0] + " " + UITSLAG[r.r][1];
+  const ant = pogingenTekst(r);
+  if (ant) html += "<br>Zij antwoordde: <b>" + veilig(ant) + "</b>";
+  if (r.r === 0 && r.g) html += " · goed is: <b>" + veilig(r.g) + "</b>";
+  if (r.u) html += "<br>Uitleg in de app: " + veilig(r.u);
+  inhoud.appendChild(el("p", { class: "klein", html }));
+  const rij = el("div", { class: "kiekjesrij" });
+  (r.k || []).forEach(k => {
+    const vak = el("div", { class: "kiekjesvak" });
+    vak.appendChild(el("div", { class: "label", tekst: k.l }));
+    const raam = el("div", { class: "kiekjesraam" });
+    raam.appendChild(el("div", { class: "werkinhoud", html: k.h }));
+    vak.appendChild(raam);
+    rij.appendChild(vak);
+  });
+  inhoud.appendChild(rij);
+  venster(r.o, inhoud);
+  /* elk kiekje verkleinen tot het in zijn vak past */
+  requestAnimationFrame(() => rij.querySelectorAll(".kiekjesraam").forEach(raam => {
+    const w = raam.firstChild;
+    const k = Math.min(1, raam.clientWidth / Math.max(1, w.scrollWidth), raam.clientHeight / Math.max(1, w.scrollHeight));
+    w.style.transformOrigin = "center center";
+    w.style.transform = "scale(" + k + ")";
+  }));
+}
+
 function toonOuders() {
   Motor.actief = false;
   scherm.innerHTML = "";
   onderbalk.innerHTML = "";
   onderbalk.className = "";
   const kaart = el("div", { class: "kaart schuif" });
-  kaart.innerHTML =
-    "<h2 class='titelregel'>Voor papa, mama of de juf</h2>" +
-    "<p class='klein'>Elke ronde bestaat uit tien vragen. Kiest ze <b>Blok 2</b> of <b>Blok 1</b>, dan komen de tien lesdoelen " +
-    "van dat blok van <i>Alles telt Q, groep 4</i> elk één keer langs, in willekeurige volgorde. <b>Door elkaar</b> neemt " +
-    "vijf lesdoelen uit elk blok. Door elkaar oefenen blijft beter hangen dan tien keer hetzelfde soort som.</p>" +
-    "<p class='klein'>Elk lesdoel heeft een eigen niveau (1, 2 of 3) dat meebeweegt: twee keer achter elkaar in één keer goed " +
-    "en het wordt moeilijker, een fout maakt het weer makkelijker. Bij een fout mag ze het altijd eerst nog een keer zelf " +
-    "proberen; pas daarna volgt het antwoord met uitleg. Er staat geen klok bij.</p>";
+
+  kaart.appendChild(el("div", { class: "ouderkop" }, [
+    el("h2", { class: "titelregel", tekst: "Voor papa, mama of de juf" }),
+    el("button", { class: "knop", type: "button", tekst: "📤 Rapport versturen", onclick: verstuurRapport })
+  ]));
+
+  const chips = (opties, actief, kies) => el("div", { class: "chiprij" }, opties.map((o, i) =>
+    el("button", { class: "keuzechip" + (i === actief ? " aan" : ""), type: "button", tekst: o, onclick: () => kies(i) })));
+  kaart.appendChild(chips(PERIODES.map(p => p.naam), ouderKeuze.periode, i => { ouderKeuze.periode = i; toonOuders(); }));
+
+  const regels = Logboek.sinds(PERIODES[ouderKeuze.periode].vanaf());
+  const t = telOp(regels);
+  if (!regels.length) {
+    kaart.appendChild(el("p", {
+      class: "klein",
+      tekst: Logboek.aantal ? "In deze periode is er niet geoefend."
+        : "Hier komt te staan welke vragen ze gemaakt heeft en wat ze antwoordde. Dat wordt bijgehouden vanaf deze versie van de app; eerdere vragen tellen alleen mee in de totalen onderaan."
+    }));
+  } else {
+    kaart.appendChild(el("p", {
+      class: "samenvatting",
+      html: "<b>" + t.rondes + "</b> " + (t.rondes === 1 ? "ronde" : "rondes") + " · <b>" + regels.length + "</b> vragen · ✅ <b>" + t[2] +
+        "</b> in één keer goed · 🟡 <b>" + t[1] + "</b> bij de 2e poging · ❌ <b>" + t[0] + "</b> niet goed"
+    }));
+
+    const tabel = el("table", { class: "oudertabel" });
+    let html = "<tr><th>Lesdoel</th><th>✅</th><th>🟡</th><th>❌</th><th>Niveau nu</th></tr>";
+    [SPELVOLGORDE_BLOK2, SPELVOLGORDE].forEach(ids => ids.forEach(id => {
+      const p = t.perDoel[id];
+      if (!p) return;
+      html += "<tr" + (p[0] ? " class='zorg'" : "") + "><td>" + doelNaam(id) + " <span class='klein'>(blok " + blokVan(id) +
+        ")</span></td><td>" + p[2] + "</td><td>" + p[1] + "</td><td>" + p[0] + "</td><td>" + Voortgang.niveauVan(id) + "</td></tr>";
+    }));
+    tabel.innerHTML = html;
+    kaart.appendChild(tabel);
+
+    kaart.appendChild(el("h3", { class: "tussenkop", tekst: "De vragen" }));
+    kaart.appendChild(chips(["Alleen wat niet in één keer goed ging", "Alle vragen"], ouderKeuze.alleenFout ? 0 : 1,
+      i => { ouderKeuze.alleenFout = i === 0; toonOuders(); }));
+    const lijst = (ouderKeuze.alleenFout ? regels.filter(r => r.r < 2) : regels).slice().reverse();
+    if (!lijst.length) kaart.appendChild(el("p", { class: "klein", tekst: "Alles in één keer goed! 🎉" }));
+    const log = el("div", { class: "logboek" });
+    let dag = "";
+    lijst.slice(0, 300).forEach(r => {
+      const d = datumLang(r.t);
+      if (d !== dag) { dag = d; log.appendChild(el("div", { class: "logdag", tekst: d })); }
+      const ant = pogingenTekst(r);
+      let h = "<span class='logic'>" + UITSLAG[r.r][0] + "</span>" +
+        "<span class='logtijd'>" + tijdKort(r.t) + "</span>" +
+        "<span class='logwat'><span class='klein'>" + doelNaam(r.d) + " · niveau " + r.n + "</span><br>" + veilig(r.o);
+      const goedIs = r.r === 0 && r.g ? "goed is: <b>" + veilig(r.g) + "</b>" : "";
+      if (ant) h += "<br><span class='logant'>Zij: <b>" + veilig(ant) + "</b>" + (goedIs ? " · " + goedIs : "") + "</span>";
+      else if (goedIs) h += "<br><span class='logant'>" + goedIs.charAt(0).toUpperCase() + goedIs.slice(1) + "</span>";
+      h += "</span>";
+      const rij = el("div", { class: "logregel" + (r.r === 0 ? " fout" : r.r === 1 ? " half" : ""), html: h });
+      if (r.k && r.k.length) rij.appendChild(el("button", {
+        class: "knop stil klein-knop", type: "button", tekst: "🔍 Bekijk", onclick: () => toonKiekjes(r)
+      }));
+      log.appendChild(rij);
+    });
+    kaart.appendChild(log);
+  }
+
+  kaart.appendChild(el("h3", { class: "tussenkop", tekst: "Sinds het begin" }));
   const tabel = el("table", { class: "oudertabel" });
   let html = "";
   [["Blok 2", SPELVOLGORDE_BLOK2], ["Blok 1", SPELVOLGORDE]].forEach(([blok, ids]) => {
@@ -218,14 +404,34 @@ function toonOuders() {
   kaart.appendChild(el("p", {
     class: "klein",
     html: "Totaal: <b>" + Voortgang.punten + "</b> punten, " + Voortgang.rondes + " afgeronde rondes, " +
-      Voortgang.verdiend() + " van de " + STICKERS.length + " stickers. " +
-      "De voortgang staat in de browser van dit apparaat en blijft bewaard als de pagina ververst wordt."
+      Voortgang.verdiend() + " van de " + STICKERS.length + " stickers."
+  }));
+
+  kaart.appendChild(el("h3", { class: "tussenkop", tekst: "Hoe de app werkt" }));
+  kaart.appendChild(el("p", {
+    class: "klein",
+    html: "Elke ronde bestaat uit tien vragen: vijf lesdoelen uit blok 1 en vijf uit blok 2 van <i>Alles telt Q, groep 4</i>, " +
+      "door elkaar. De volgende ronde neemt de lesdoelen die de vorige keer niet aan de beurt waren, zodat in elke twee " +
+      "rondes alle twintig lesdoelen één keer langskomen."
+  }));
+  kaart.appendChild(el("p", {
+    class: "klein",
+    html: "Elk lesdoel heeft een eigen niveau (1, 2 of 3) dat meebeweegt: twee keer achter elkaar in één keer goed " +
+      "en het wordt moeilijker, een fout maakt het weer makkelijker. Bij een fout mag ze het altijd eerst nog een keer zelf " +
+      "proberen; pas daarna volgt het antwoord met uitleg. Er staat geen klok bij."
+  }));
+  kaart.appendChild(el("p", {
+    class: "klein",
+    html: "Alles staat alleen in de browser van dit apparaat. Het logboek bewaart de laatste 600 vragen, " +
+      "en bij de laatste 60 fouten ook een plaatje van de vraag zoals zij hem achterliet (🔍 Bekijk). " +
+      "Bij sleep- en tikopdrachten staat haar antwoord alleen in dat plaatje. " +
+      "<b>Rapport versturen</b> deelt een tekstje over de gekozen periode, bijvoorbeeld via WhatsApp of mail."
   }));
   kaart.appendChild(el("div", { class: "midden" }, [
     el("button", {
       class: "knop stil", type: "button", tekst: "Alles wissen en opnieuw beginnen",
       onclick() {
-        if (confirm("Alle punten, stickers en niveaus wissen?")) { Voortgang.wisAlles(); toonStart(); }
+        if (confirm("Alle punten, stickers, niveaus en het logboek wissen?")) { Voortgang.wisAlles(); Logboek.wis(); toonStart(); }
       }
     })
   ]));
@@ -238,7 +444,7 @@ function toonOuders() {
    De oefenronde
    ========================================================================= */
 const Motor = {
-  actief: false, soort: "blok2", volgorde: [], nr: 0, puntenRonde: 0, goedOpRij: 0, resultaten: [],
+  actief: false, soort: "samen", volgorde: [], nr: 0, puntenRonde: 0, goedOpRij: 0, resultaten: [], rid: 0,
   doel: null, niveau: 1, vraag: null, poging: 0, bezig: false, werkvlak: null,
 
   begin(hervat, soort) {
@@ -250,10 +456,11 @@ const Motor = {
       this.puntenRonde = opgeslagen.punten;
       this.goedOpRij = opgeslagen.goedOpRij || 0;
       this.resultaten = opgeslagen.resultaten || [];
+      this.rid = opgeslagen.rid || Date.now();
     } else {
-      this.soort = RONDESOORTEN[soort] ? soort : "blok2";
+      this.soort = RONDESOORTEN[soort] ? soort : "samen";
       this.volgorde = RONDESOORTEN[this.soort].maak();
-      this.nr = 0; this.puntenRonde = 0; this.goedOpRij = 0; this.resultaten = [];
+      this.nr = 0; this.puntenRonde = 0; this.goedOpRij = 0; this.resultaten = []; this.rid = Date.now();
       if (Voortgang.nieuweDag()) {
         Voortgang.telPunten(BONUS_NIEUWE_DAG);
         this.puntenRonde += BONUS_NIEUWE_DAG;
@@ -267,7 +474,7 @@ const Motor = {
   bewaarStand() {
     Voortgang.bewaarRonde({
       soort: this.soort, volgorde: this.volgorde, nr: this.nr, punten: this.puntenRonde,
-      goedOpRij: this.goedOpRij, resultaten: this.resultaten
+      goedOpRij: this.goedOpRij, resultaten: this.resultaten, rid: this.rid
     });
   },
 
@@ -276,6 +483,7 @@ const Motor = {
     this.doel = this.volgorde[this.nr];
     this.niveau = Voortgang.niveauVan(this.doel);
     this.vraag = SPELLEN[this.doel].maak(this.niveau);
+    Logboek.nieuweVraag(this.doel, this.niveau, this.vraag, this.rid);
     this.poging = 0;
     this.bezig = false;
     this.teken();
@@ -340,6 +548,8 @@ const Motor = {
     if (this.bezig) return;
     const q = this.vraag, vlak = this.werkvlak;
     let goed = false;
+    let antwoord = null;
+    try { antwoord = Logboek.leesAntwoord(vlak, q); } catch (e) {}
     try { goed = !!q.check(vlak); } catch (e) { goed = false; }
 
     if (goed) {
@@ -351,6 +561,8 @@ const Motor = {
       Voortgang.noteer(this.doel, eersteKeer);
       Voortgang.pasNiveauAan(this.doel, eersteKeer);
       this.resultaten[this.nr] = eersteKeer ? 2 : 1;
+      if (!eersteKeer) Logboek.zetUitleg(q.uitleg);
+      Logboek.goed(antwoord, eersteKeer);
 
       let extra = "";
       if (eersteKeer) {
@@ -374,6 +586,7 @@ const Motor = {
     this.poging++;
     if (this.poging === 1) {
       Geluid.fout();
+      Logboek.eersteFout(vlak, antwoord);
       if (q.herstel) q.herstel(vlak);
       this.feedbackBalk(false, kies(BIJNA), "", false);
       return;
@@ -385,6 +598,7 @@ const Motor = {
     this.resultaten[this.nr] = 0;
     Geluid.fout();
     if (q.toon) q.toon(vlak);
+    Logboek.tweedeFout(vlak, antwoord, q.uitleg, q);
     this.nr++;
     this.bewaarStand();
     kop();
@@ -437,7 +651,7 @@ const Motor = {
     onderbalk.className = "";
 
     const links = el("div", { class: "startlinks" });
-    links.appendChild(poesjeOfPlaatje(kies(EIGEN_PLAATJES.beloningen), 120));
+    links.appendChild(poesjeOfPlaatje([kies(EIGEN_PLAATJES.beloningen), EIGEN_PLAATJES.mascotte], 120));
     links.appendChild(el("h2", {
       tekst: goed >= 9 ? "Fantastisch!" : goed >= 7 ? "Goed gedaan!" : goed >= 4 ? "Lekker geoefend!" : "Goed geprobeerd!"
     }));
@@ -477,7 +691,7 @@ const Motor = {
     scherm.appendChild(el("div", { class: "start" }, [links, rechts]));
     onderbalk.appendChild(el("button", {
       class: "knop groot groen", type: "button", tekst: "▶ Nog een ronde",
-      onclick: () => this.begin(false, this.soort)
+      onclick: () => this.begin(false, "samen")
     }));
     onderbalk.appendChild(el("button", { class: "knop stil", type: "button", tekst: "🏠 Naar het begin", onclick: toonStart }));
     kop();

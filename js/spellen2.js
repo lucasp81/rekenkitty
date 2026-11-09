@@ -383,7 +383,10 @@ SPELLEN.klok = {
         opdracht: "Welke klok wijst <b>" + naam + "</b> aan?",
         uitleg: uitlegTijd,
         opties, goed: opties.indexOf(goed), plaatje: true,
-        inhoud(knop, t) { knop.appendChild(klokPlaatje(t.u, t.m, 156, t.v)); }
+        inhoud(knop, t) {
+          knop.appendChild(klokPlaatje(t.u, t.m, 156, t.v));
+          knop.setAttribute("data-naam", t.v ? "klok met omgedraaide wijzers" : "klok op " + tijdNaam(t.u, t.m));
+        }
       });
     }
 
@@ -418,6 +421,7 @@ SPELLEN.klok = {
     return {
       opdracht: "Zet de klok op <b>" + naam + "</b>.",
       uitleg: uitlegTijd,
+      antwoordTekst() { const t = tijdVan(nu); return "klok op " + tijdNaam(t.u, t.m); },
       bouw(vlak) {
         houder = el("div");
         const knop = (tekst, stap) => el("button", {

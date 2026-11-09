@@ -4,10 +4,10 @@ Een rekenoefenapp voor groep 4, gemaakt bij de lesdoelen van **Alles telt Q, gro
 Bedoeld voor een tablet in liggende stand: alles gaat met tikken en slepen, er komt nooit een
 schermtoetsenbord in beeld en er hoeft nooit gescrold te worden.
 
-Eén ronde is tien vragen. Op het startscherm kiest ze **Blok 2**, **Blok 1 herhalen** of **Door
-elkaar**. Bij een blok komen alle tien de lesdoelen van dat blok één keer voorbij, in willekeurige
-volgorde; "Door elkaar" neemt vijf lesdoelen uit elk blok. Door elkaar oefenen blijft beter hangen
-dan tien keer hetzelfde soort som.
+Eén ronde is tien vragen: vijf lesdoelen uit blok 1 en vijf uit blok 2, door elkaar. Op het
+startscherm staat daarvoor één knop, **Start**. De volgende ronde neemt de lesdoelen die de vorige
+keer niet aan de beurt waren, zodat in elke twee rondes alle twintig lesdoelen één keer langskomen.
+Door elkaar oefenen blijft beter hangen dan tien keer hetzelfde soort som.
 
 ## Wat er geoefend wordt in blok 2
 
@@ -62,6 +62,23 @@ eerst nog een keer zelf proberen; pas daarna volgt het antwoord met uitleg. Er s
 Alles wordt na élke vraag opgeslagen in de browser van de tablet. Wordt de pagina per ongeluk
 ververst, dan zijn de punten er nog gewoon en gaat de ronde verder waar hij gebleven was.
 
+## Wat ging goed en wat niet? (de ouderhoek)
+
+Onderaan het beginscherm staat **"Voor papa, mama of de juf"**. Daar staat:
+
+* een keuze voor de periode: vandaag, 7 dagen, 30 dagen of alles;
+* per lesdoel hoe vaak het in één keer goed ging (✅), bij de tweede poging (🟡) of niet (❌), en het niveau nu;
+* de vragen zelf, nieuwste eerst: de opdracht, wat ze antwoordde en wat goed was. Standaard alleen wat niet
+  in één keer goed ging; met "Alle vragen" ook de rest;
+* bij een fout een knop **🔍 Bekijk** met een plaatje van de vraag zoals zij hem achterliet. Bij sleep- en
+  tikopdrachten (geld op de toonbank, blokken, spiegelen) staat haar antwoord alleen in dat plaatje;
+* **📤 Rapport versturen**: een tekstje over de gekozen periode via het deelmenu van de tablet
+  (WhatsApp, mail, ...). Op een computer zonder deelmenu verschijnt de tekst om te kopiëren.
+
+Het logboek houdt de laatste 600 vragen bij, en bij de laatste 60 fouten het plaatje. Het staat, net als de
+punten, alleen op de tablet. Het wordt bijgehouden vanaf deze versie; wat ze daarvoor deed, telt alleen mee
+in de totalen "Sinds het begin".
+
 ## Op GitHub zetten
 
 1. Maak op github.com een nieuwe repository, bijvoorbeeld `rekenkitty` (mag publiek of privé —
@@ -84,7 +101,7 @@ ververst, dan zijn de punten er nog gewoon en gaat de ronde verder waar hij gebl
 4. Na een minuut staat de app op `https://JOUWNAAM.github.io/rekenkitty/`.
 
 Later iets aangepast? Push de wijziging en zet in `sw.js` het nummer bij `VERSIE` één hoger
-(nu staat er `rekenkitty-v2`; de volgende keer wordt dat `rekenkitty-v3`). Dan haalt de tablet de nieuwe versie op in plaats van de
+(nu staat er `rekenkitty-v4`; de volgende keer wordt dat `rekenkitty-v5`). Dan haalt de tablet de nieuwe versie op in plaats van de
 opgeslagen oude.
 
 ## Op de tablet zetten
@@ -122,6 +139,7 @@ index.html                de pagina zelf
 css/stijl.css             de opmaak (alles past op één liggend scherm)
 js/kern.js                hulpjes, geluid, slepen en tikken, de tekeningen
 js/voortgang.js           punten, niveaus, stickers, dagreeks en het bewaren
+js/logboek.js             wat ze per vraag antwoordde, voor de ouderhoek en het rapport
 js/spellen.js             een vraaggenerator per lesdoel van blok 1
 js/spellen2.js            een vraaggenerator per lesdoel van blok 2
 js/app.js                 de schermen, de ronde en de puntentelling

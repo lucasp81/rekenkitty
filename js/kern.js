@@ -70,10 +70,13 @@ function poesje(maat) {
   return d;
 }
 /* Toont een eigen plaatje als dat bestaat, anders het getekende poesje. */
+/* bron mag ook een lijstje zijn: dan wordt het eerste plaatje genomen dat er echt is */
 function poesjeOfPlaatje(bron, maat) {
   const houder = el("div", { stijl: "width:" + maat + "px;max-width:100%;margin:0 auto" });
   houder.appendChild(poesje(maat));
-  if (bron) {
+  const bronnen = [].concat(bron || []);
+  const probeer = i => {
+    if (i >= bronnen.length) return;
     const img = new Image();
     img.onload = () => {
       houder.innerHTML = "";
@@ -82,9 +85,10 @@ function poesjeOfPlaatje(bron, maat) {
       img.style.borderRadius = "20px";
       houder.appendChild(img);
     };
-    img.onerror = () => {};
-    img.src = bron;
-  }
+    img.onerror = () => probeer(i + 1);
+    img.src = bronnen[i];
+  };
+  probeer(0);
   return houder;
 }
 /* ---------- geluidjes ---------- */
@@ -276,7 +280,14 @@ function keuzeVraag(o) {
       o.opties.forEach((opt, i) => {
         const k = el("button", { class: "keuze" + (o.plaatje ? " plaatje" : ""), type: "button" });
         o.inhoud(k, opt, i);
-        k.addEventListener("click", () => { if (gekozen >= 0) return; gekozen = i; Motor.inleveren(); });
+        k.addEventListener("click", () => {
+          if (gekozen >= 0) return;
+          gekozen = i;
+          /* zodat het logboek weet welke knop ze koos */
+          rij.querySelectorAll(".keuze").forEach(b => b.removeAttribute("data-gekozen"));
+          k.setAttribute("data-gekozen", "");
+          Motor.inleveren();
+        });
         rij.appendChild(k);
       });
       vlak.appendChild(rij);

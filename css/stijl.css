@@ -15,7 +15,7 @@
   --toets:clamp(40px, 6.4vh, 58px);      /* hoogte van een cijfertoets */
   --vak-h:clamp(46px, 8.4vh, 70px);      /* hoogte van een invulvakje */
   --vak-b:clamp(62px, 11vh, 96px);       /* breedte van een invulvakje */
-  --opdracht:clamp(16px, 2.7vh, 23px);
+  --opdracht:clamp(20px, 4vh, 34px);
   --groot:clamp(24px, 5.2vh, 42px);      /* cijfers in een som */
 }
 
@@ -74,7 +74,16 @@ body{
 .kaartkop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto}
 .doellabel{font-size:clamp(11px,1.8vh,15px);color:var(--zacht);white-space:nowrap}
 .titelregel{margin:0 0 8px;color:var(--roze-diep);font-size:clamp(18px,3vh,26px)}
-.opdracht{font-size:var(--opdracht);margin:6px 0 8px;line-height:1.3;flex:0 0 auto}
+/* de opdracht: groot en in het midden, zodat ze die eerst leest en pas daarna de som */
+.opdracht{
+  font-size:var(--opdracht);line-height:1.25;flex:0 0 auto;
+  text-align:center;font-weight:bold;color:var(--ink);
+  align-self:center;max-width:min(980px,100%);
+  margin:clamp(4px,1vh,10px) 0 clamp(6px,1.4vh,14px);
+  padding:clamp(6px,1.2vh,12px) clamp(14px,2.4vw,30px);
+  background:var(--roze-licht);border-radius:18px;
+}
+.opdracht b{color:var(--roze-diep)}
 .werkvlak{
   flex:1 1 auto;min-height:0;overflow:hidden;
   display:flex;align-items:center;justify-content:center;
@@ -278,6 +287,60 @@ table.oudertabel td,table.oudertabel th{text-align:left;padding:5px 8px;border-b
   transition:transform .3s;z-index:50;pointer-events:none;white-space:nowrap
 }
 #toast.zichtbaar{transform:translate(-50%,0)}
+
+/* ------------------------------------------------ ouderhoek: logboek --- */
+.ouderkop{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.ouderkop .titelregel{margin:0}
+.tussenkop{margin:16px 0 6px;color:var(--roze-diep);font-size:clamp(15px,2.4vh,20px)}
+.chiprij{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 8px}
+.keuzechip{
+  font-family:inherit;cursor:pointer;border:2px solid var(--roze-rand);background:#fff;color:var(--ink);
+  border-radius:999px;padding:5px 14px;font-size:clamp(12px,1.9vh,16px)
+}
+.keuzechip.aan{background:var(--roze);border-color:var(--roze);color:#fff;font-weight:bold}
+.samenvatting{font-size:clamp(13px,2vh,17px);margin:6px 0}
+table.oudertabel tr.zorg td{background:#fff3f6}
+.logboek{display:flex;flex-direction:column;gap:6px}
+.logdag{font-weight:bold;color:var(--zacht);margin-top:8px;font-size:clamp(12px,1.9vh,16px)}
+.logdag::first-letter{text-transform:uppercase}
+.logregel{
+  display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:12px;
+  background:#fbf7f9;border:2px solid #f3e6ec;font-size:clamp(13px,2vh,17px)
+}
+.logregel.fout{background:#fff4f6;border-color:#f9c3d0}
+.logregel.half{background:#fffaeb;border-color:#ffe4a3}
+.logic{font-size:1.3em;flex:0 0 auto}
+.logtijd{color:var(--zacht);flex:0 0 auto;font-size:.9em}
+.logwat{flex:1 1 auto;min-width:0;line-height:1.35}
+.klein-knop{font-size:clamp(12px,1.8vh,15px);padding:6px 12px;flex:0 0 auto}
+
+/* een venster boven de ouderhoek (kiekjes, rapport) */
+.venster{
+  position:fixed;inset:0;z-index:60;background:rgba(67,38,58,.45);
+  display:flex;align-items:center;justify-content:center;padding:14px
+}
+.vensterdoos{
+  background:#fff;border-radius:22px;box-shadow:0 12px 40px rgba(0,0,0,.25);
+  width:min(1200px,100%);max-height:100%;display:flex;flex-direction:column;gap:8px;
+  padding:clamp(10px,1.8vh,18px);overflow:auto
+}
+.vensterkop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.vensterkop h3{margin:0;color:var(--roze-diep);font-size:clamp(15px,2.4vh,20px)}
+.vensterknoppen{display:flex;justify-content:center;gap:10px}
+.rapporttekst{
+  width:100%;height:55vh;font-family:inherit;font-size:14px;border:2px solid var(--roze-rand);
+  border-radius:12px;padding:10px;-webkit-user-select:text;user-select:text;resize:none
+}
+.kiekjes p{margin:0}
+.kiekjesrij{display:flex;gap:12px;flex-wrap:wrap}
+.kiekjesvak{flex:1 1 360px;min-width:0;display:flex;flex-direction:column;gap:4px}
+.kiekjesraam{
+  height:min(58vh,520px);overflow:hidden;border:3px solid var(--roze-rand);border-radius:16px;
+  padding:8px;pointer-events:none;display:flex;align-items:center;justify-content:center
+}
+.kiekjesraam .werkinhoud{flex:0 0 auto}
+/* in het kiekje: de knop die zij koos */
+.kiekjesraam .keuze[data-gekozen]{border-color:var(--fout);background:#ffeef1;box-shadow:0 0 0 4px rgba(224,50,79,.25)}
 
 /* ------------------------------------------- staand scherm: ook bruikbaar - */
 @media (orientation:portrait){
