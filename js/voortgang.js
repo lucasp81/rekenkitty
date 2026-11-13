@@ -41,7 +41,24 @@ const STICKERS = [
   { emoji: "🐼", naam: "Panda", kleur: "#eeeeee" },
   { emoji: "🌺", naam: "Hibiscus", kleur: "#ffe0e8" },
   { emoji: "🎪", naam: "Circus", kleur: "#ffe5e5" },
-  { emoji: "💎", naam: "Diamant", kleur: "#e0f4ff" }
+  { emoji: "💎", naam: "Diamant", kleur: "#e0f4ff" },
+  /* erbij gekomen in blok 3 */
+  { emoji: "🐙", naam: "Octopus", kleur: "#ffe2ec" },
+  { emoji: "🍀", naam: "Klavertje", kleur: "#e3f6e3" },
+  { emoji: "🎃", naam: "Pompoen", kleur: "#ffe9d2" },
+  { emoji: "🦊", naam: "Vosje", kleur: "#ffe8d9" },
+  { emoji: "🧸", naam: "Beertje", kleur: "#f6eadb" },
+  { emoji: "🌷", naam: "Tulp", kleur: "#ffe0ea" },
+  { emoji: "🐢", naam: "Schildpad", kleur: "#e3f5e6" },
+  { emoji: "🍰", naam: "Taartje", kleur: "#fff0e6" },
+  { emoji: "🪁", naam: "Vlieger", kleur: "#e3efff" },
+  { emoji: "🐧", naam: "Pinguïn", kleur: "#e8eef5" },
+  { emoji: "🍄", naam: "Paddenstoel", kleur: "#ffe3e3" },
+  { emoji: "🦉", naam: "Uiltje", kleur: "#f2eadf" },
+  { emoji: "🎻", naam: "Viool", kleur: "#f7e6d8" },
+  { emoji: "🐳", naam: "Walvis", kleur: "#dff0ff" },
+  { emoji: "🌠", naam: "Vallende ster", kleur: "#ecebff" },
+  { emoji: "🏆", naam: "Beker", kleur: "#fff2c2" }
 ];
 const PUNTEN_PER_STICKER = 60;
 
@@ -72,6 +89,9 @@ const Voortgang = (() => {
     stats: {},            /* per lesdoel {goed, totaal} */
     ronde: null,          /* de ronde waar ze nu mee bezig is */
     nogTeDoen: {},        /* per blok: lesdoelen die in deze cyclus nog niet aan de beurt waren */
+    blok3Start: 0,        /* aantal afgeronde rondes toen blok 3 erbij kwam */
+    blok3Extra: 0,        /* zoveel lesdoelen van blok 3 heeft papa/mama al eerder vrijgegeven */
+    stickersBlok3: true,  /* de 16 stickers van blok 3 zijn verrekend */
     geluid: true
   };
   let d = JSON.parse(JSON.stringify(leeg));
@@ -86,6 +106,13 @@ const Voortgang = (() => {
       if (oud.stickerDrempel === undefined)
         d.stickerDrempel = d.stickers < 16 ? (d.stickers + 1) * PUNTEN_PER_STICKER
           : (Math.floor(d.punten / PUNTEN_PER_STICKER) + 1) * PUNTEN_PER_STICKER;
+      /* Blok 3 telt vanaf de eerste keer dat deze versie opent. */
+      if (oud.blok3Start === undefined) d.blok3Start = d.rondes;
+      /* Had ze al alle 32 stickers van blok 1 en 2, dan verdient ze de nieuwe vanaf nu,
+         elke 60 punten één, in plaats van allemaal tegelijk. */
+      if (oud.stickersBlok3 === undefined && d.stickers >= 32)
+        d.stickerDrempel = Math.max(d.stickerDrempel, (Math.floor(d.punten / PUNTEN_PER_STICKER) + 1) * PUNTEN_PER_STICKER);
+      d.stickersBlok3 = true;
     }
   } catch (e) { /* geen opslag beschikbaar: dan onthoudt hij het alleen deze sessie */ }
 
@@ -187,6 +214,11 @@ const Voortgang = (() => {
       bewaar();
       return gekozen;
     },
+
+    /* ---------- blok 3 komt stap voor stap vrij ---------- */
+    blok3Rondes() { return Math.max(0, d.rondes - (d.blok3Start || 0)); },
+    get blok3Extra() { return d.blok3Extra || 0; },
+    geefBlok3Vrij() { d.blok3Extra = (d.blok3Extra || 0) + 1; bewaar(); },
 
     /* ---------- de lopende ronde ---------- */
     bewaarRonde(ronde) { d.ronde = ronde; bewaar(); },

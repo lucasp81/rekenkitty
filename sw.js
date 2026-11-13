@@ -8,7 +8,7 @@
    Heb je bestanden aangepast? Zet dan hieronder VERSIE een nummer hoger, dan
    ruimt de tablet de oude cache op.
    ========================================================================= */
-const VERSIE = "rekenkitty-v4";
+const VERSIE = "rekenkitty-v5";
 
 const BESTANDEN = [
   "./",
@@ -19,6 +19,7 @@ const BESTANDEN = [
   "js/logboek.js",
   "js/spellen.js",
   "js/spellen2.js",
+  "js/spellen3.js",
   "js/app.js",
   "manifest.webmanifest",
   "iconen/icoon-192.png",

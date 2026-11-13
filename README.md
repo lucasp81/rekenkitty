@@ -1,13 +1,40 @@
 # Rekenkitty
 
-Een rekenoefenapp voor groep 4, gemaakt bij de lesdoelen van **Alles telt Q, groep 4, blok 1 en blok 2**.
+Een rekenoefenapp voor groep 4, gemaakt bij de lesdoelen van **Alles telt Q, groep 4, blok 1 en blok 2**,
+en bij wat de juf schreef over **blok 3**.
 Bedoeld voor een tablet in liggende stand: alles gaat met tikken en slepen, er komt nooit een
 schermtoetsenbord in beeld en er hoeft nooit gescrold te worden.
 
-Eén ronde is tien vragen: vijf lesdoelen uit blok 1 en vijf uit blok 2, door elkaar. Op het
-startscherm staat daarvoor één knop, **Start**. De volgende ronde neemt de lesdoelen die de vorige
-keer niet aan de beurt waren, zodat in elke twee rondes alle twintig lesdoelen één keer langskomen.
+Eén ronde is tien vragen. Op het startscherm staat daarvoor één knop, **Start**. In elke ronde zitten:
+
+* **twee tafelvragen** (eentje in de eerste helft, eentje in de tweede): de juf vraagt om elke dag even de tafels;
+* **tot vier andere onderwerpen uit blok 3**;
+* de rest is **herhaling** uit blok 2 en blok 1, om en om, zodat die lesdoelen af en toe terugkomen.
+
 Door elkaar oefenen blijft beter hangen dan tien keer hetzelfde soort som.
+
+## Wat er geoefend wordt in blok 3
+
+Blok 3 komt **stap voor stap**, zodat het leuk blijft en het moeilijke langzaam komt:
+
+| Komt vrij | Lesdoel | Wat ze doet |
+| --- | --- | --- |
+| meteen | Ik oefen de tafels van 2, 5 en 10 | groepjes tellen bij 3 × 2, rijtjes van de tafel afmaken, keersommen, ? × 5 = 20, ballonnen uit de tafel van 5 aantikken, verhaaltjes (handjes, sokken, briefjes van 10), afleiden: 10 × 5 = 50, dus 9 × 5 = ? |
+| meteen | Ik oefen optellen en aftrekken tot en met 100 | eerst 40 + 30 en 34 + 20, dan 34 + 25, daarna 38 + 25 en 72 − 36; ook in twee stappen (eerst de tientallen) en als verhaaltje |
+| meteen | Ik oefen halveren en verdubbelen | eerst met plaatjes tot 12, dan de verdubbel- en halveermachine, tientallen (de helft van 70), verhaaltjes, twee keer door de machine, terugrekenen |
+| na 2 rondes | Ik oefen klokkijken met kwartieren | waar staat de lange wijzer bij kwart over/voor, klok aflezen, de goede klok kiezen, zelf zetten, een kwartier later, hoe lang duurt het |
+| na 4 rondes | Ik leer over kilogram en gram | wat is zwaarder op de weegschaal, gram of kilogram, gewichtjes optellen, hoeveel pakjes van 250 gram is 1 kilo, de weegschaal recht maken |
+| na 7 rondes | Ik leer wat omtrek is | wat is de omtrek, randjes tellen op ruitjespapier, rechthoek en vierkant in cm, driehoek, hek om de tuin, welke figuur heeft de langste omtrek |
+| na 12 rondes | Ik oefen de tafel van 3 | net als de andere tafels, met klavertjes drie |
+
+Een lesdoel dat net vrij is gekomen zit in de eerstvolgende ronde, met een meldinkje "✨ Nieuw". Elk lesdoel
+begint op niveau 1 (met plaatjes) en wordt pas moeilijker als het twee keer achter elkaar in één keer goed gaat.
+
+Is de juf al verder dan de app? In de ouderhoek staat onder **Blok 3: wat komt wanneer** een knop om het volgende
+lesdoel meteen vrij te geven.
+
+De titels van de lesdoelen van blok 3 zijn zelf bedacht op basis van de brief van de juf; er was (nog) geen
+lesdoelenposter van blok 3 zoals bij blok 1 en 2.
 
 ## Wat er geoefend wordt in blok 2
 
@@ -24,8 +51,8 @@ Door elkaar oefenen blijft beter hangen dan tien keer hetzelfde soort som.
 | Ik verdeel hoeveelheden tot en met 100 | tienstaven en blokjes uitdelen (op niveau 3 met inwisselen), de helft, verhaaltjes |
 | Ik leer patronen spiegelen | een patroon aan de andere kant van de spiegellijn afmaken, of het goede spiegelbeeld kiezen |
 
-Het ×-teken en het :-teken worden niet gebruikt; herhaald optellen en verdelen staan steeds als
-plussom of in woorden.
+In blok 2 werden het ×-teken en het :-teken nog niet gebruikt; herhaald optellen en verdelen staan daar als
+plussom of in woorden. Bij de tafels van blok 3 komt het ×-teken erbij (3 × 5 = 3 groepjes van 5).
 
 De munten zijn getekend in hun echte verhoudingen: de munt van 50 cent is groter dan die van
 1 euro. Daar zitten bewust vragen over.
@@ -55,8 +82,8 @@ eerst nog een keer zelf proberen; pas daarna volgt het antwoord met uitleg. Er s
 * **+10 bonus** bij elke drie goede antwoorden op rij.
 * **+20 bonus** voor de eerste ronde van de dag; het vlammetje 🔥 telt de dagen op rij.
 * Elke **100 punten** een niveau hoger, met een nieuwe naam: van Rekenpoesje via Rekenlegende tot Rekengenie (en daarna "Rekenlegende met kroon").
-* Elke **60 punten** een nieuwe sticker voor de stickerkast (32 in totaal; de laatste 16 zijn er
-  bij blok 2 bijgekomen). Had ze al alle 16 oude stickers, dan verdient ze de nieuwe vanaf nu,
+* Elke **60 punten** een nieuwe sticker voor de stickerkast (48 in totaal; er kwamen er 16 bij in blok 2 en
+  16 in blok 3). Had ze al alle oude stickers, dan verdient ze de nieuwe vanaf nu,
   gewoon elke 60 punten één.
 
 Alles wordt na élke vraag opgeslagen in de browser van de tablet. Wordt de pagina per ongeluk
@@ -101,7 +128,7 @@ in de totalen "Sinds het begin".
 4. Na een minuut staat de app op `https://JOUWNAAM.github.io/rekenkitty/`.
 
 Later iets aangepast? Push de wijziging en zet in `sw.js` het nummer bij `VERSIE` één hoger
-(nu staat er `rekenkitty-v4`; de volgende keer wordt dat `rekenkitty-v5`). Dan haalt de tablet de nieuwe versie op in plaats van de
+(nu staat er `rekenkitty-v5`; de volgende keer wordt dat `rekenkitty-v6`). Dan haalt de tablet de nieuwe versie op in plaats van de
 opgeslagen oude.
 
 ## Op de tablet zetten
@@ -142,6 +169,7 @@ js/voortgang.js           punten, niveaus, stickers, dagreeks en het bewaren
 js/logboek.js             wat ze per vraag antwoordde, voor de ouderhoek en het rapport
 js/spellen.js             een vraaggenerator per lesdoel van blok 1
 js/spellen2.js            een vraaggenerator per lesdoel van blok 2
+js/spellen3.js            een vraaggenerator per lesdoel van blok 3, en wanneer welk lesdoel vrijkomt
 js/app.js                 de schermen, de ronde en de puntentelling
 iconen/                   app-iconen (en maak-iconen.py om ze opnieuw te tekenen)
 plaatjes/                 hier kun je eigen plaatjes neerzetten
